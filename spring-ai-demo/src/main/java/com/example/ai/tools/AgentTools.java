@@ -38,6 +38,13 @@ public class AgentTools {
         System.out.printf(">>> [Raw LLM Call] queryWeather 收到大模型传递的原始实参: cityName = [%s]%n", cityName);
         String city = cityName == null ? "未知城市" : cityName.trim();
 
+        // 模拟企业生产级外部微服务/第三方气象接口故障（用于验证大模型容错与自愈能力）
+        // 使用真实城市（如拉萨），避免大模型凭借预训练常识认为"火星不是地球城市"而直接拒绝调用工具
+        if (city.contains("拉萨") || city.contains("火星") || city.contains("故障") || city.contains("超时")) {
+            System.err.printf(">>> [Tool Exception Simulation] 模拟第三方气象接口异常: 城市=[%s]%n", city);
+            throw new RuntimeException("拉萨第三方气象数据服务连接超时 [HTTP 504 Gateway Timeout]，当前无法获取该地区气象数据");
+        }
+
         if (city.contains("北京")) {
             return new WeatherResponse("北京", "晴朗微风", 6, "气温偏低，建议携带羽绒服或厚大衣");
         } else if (city.contains("上海")) {
