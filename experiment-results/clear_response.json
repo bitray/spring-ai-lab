@@ -1,0 +1,1 @@
+﻿{"next_step":"现在直接调用 POST /rag/reingest?chunkSize=xxx 重新摄入","embedding_dimensions":1024,"message":"Collection 'knowledge-base' 已清空并重建，无需重启","delete_response":"{\"result\":true,\"status\":\"ok\",\"time\":0.006832216}","create_response":"{\"result\":true,\"status\":\"ok\",\"time\":0.094052044}"}

@@ -1,0 +1,86 @@
+[
+  {
+    "id": "leave-annual-days",
+    "question": "入职满8年的员工每年有几天带薪年假？",
+    "expectedSources": ["company-leave-policy.md"],
+    "answerKeywords": ["5天"]
+  },
+  {
+    "id": "leave-annual-senior",
+    "question": "入职满15年的员工每年有几天带薪年假？",
+    "expectedSources": ["company-leave-policy.md"],
+    "answerKeywords": ["10天"]
+  },
+  {
+    "id": "leave-sick-proof",
+    "question": "请病假需要提交什么证明？",
+    "expectedSources": ["company-leave-policy.md", "company-salary-policy.md"],
+    "answerKeywords": ["二级甲等", "诊断证明"]
+  },
+  {
+    "id": "leave-sick-pay-rule",
+    "question": "病假超过30天的部分工资怎么发放？",
+    "expectedSources": ["company-leave-policy.md", "company-salary-policy.md"],
+    "answerKeywords": ["80%", "基本工资"]
+  },
+  {
+    "id": "leave-sick-35-calc",
+    "question": "生病35天我能拿多少工资？",
+    "expectedSources": ["company-salary-policy.md"],
+    "answerKeywords": ["30天", "80%", "5天"]
+  },
+  {
+    "id": "leave-personal-limit",
+    "question": "事假每月最多可以请几天？",
+    "expectedSources": ["company-leave-policy.md"],
+    "answerKeywords": ["3天", "无薪"]
+  },
+  {
+    "id": "leave-marriage-days",
+    "question": "婚假一共有多少天？",
+    "expectedSources": ["company-leave-policy.md"],
+    "answerKeywords": ["3天", "10天"]
+  },
+  {
+    "id": "salary-daily-wage",
+    "question": "病假工资的日工资标准怎么计算？",
+    "expectedSources": ["company-salary-policy.md"],
+    "answerKeywords": ["21.75", "基本工资"]
+  },
+  {
+    "id": "expense-hotel-first-tier",
+    "question": "一线城市出差住宿每晚报销上限是多少？",
+    "expectedSources": ["company-expense-policy.md"],
+    "answerKeywords": ["500"]
+  },
+  {
+    "id": "expense-deadline",
+    "question": "差旅报销需要在出差结束后几个工作日内提交？",
+    "expectedSources": ["company-expense-policy.md"],
+    "answerKeywords": ["5个工作日"]
+  },
+  {
+    "id": "expense-dinner-limit",
+    "question": "商务宴请人均标准不超过多少元？",
+    "expectedSources": ["company-expense-policy.md"],
+    "answerKeywords": ["200"]
+  },
+  {
+    "id": "tech-spring-ai",
+    "question": "Spring AI 是什么？",
+    "expectedSources": ["spring-ai-guide.md"],
+    "answerKeywords": ["Spring", "AI", "框架"]
+  },
+  {
+    "id": "tech-entity",
+    "question": "Spring AI 怎么把大模型输出转成 Java 对象？",
+    "expectedSources": ["spring-ai-guide.md"],
+    "answerKeywords": [".entity()", "JSON Schema"]
+  },
+  {
+    "id": "out-of-scope-gpu",
+    "question": "公司食堂的菜单是什么？",
+    "expectedSources": [],
+    "answerKeywords": []
+  }
+]

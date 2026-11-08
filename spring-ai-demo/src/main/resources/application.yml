@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: spring-ai-demo
+
+  ai:
+    ollama:
+      # Ollama 服务地址
+      base-url: http://localhost:11434
+      chat:
+        options:
+          # 对话使用的模型（确保你本地已 ollama pull 过）
+          model: qwen2.5:3b
+          # Temperature: 越低越确定（结构化输出建议 0.1-0.3），越高越有创造性
+          temperature: 0.7
+      embedding:
+        options:
+          # 向量化模型（用于 RAG 文档切片和查询的向量化）
+          # 选型记录：nomic-embed-text(中文弱,已弃用) → qwen3-embedding:0.6b(选用,省资源) / bge-m3(备选,机器升级后可对比)
+          # ⚠️ 换模型后必须：POST /rag/clear → 重启 → 重新 ingest（新旧向量不在同一数学空间）
+          model: qwen3-embedding:0.6b
+
+    vectorstore:
+      qdrant:
+        # Qdrant 服务地址（Docker 默认端口）
+        host: localhost
+        port: 6334
+        # Collection 名称（类似数据库的“表名”）
+        collection-name: knowledge-base
+        # 首次启动时自动创建 Collection
+        initialize-schema: true
+
+server:
+  port: 8080
+
+# 开启 Advisor 日志：查看 RAG 拼接后发给 LLM 的完整 Prompt（排查用）
+logging:
+  level:
+    org.springframework.ai.chat.client.advisor: DEBUG
