@@ -50,34 +50,36 @@ public class AgentTools {
     }
 
     /**
-     * Tool 2: Calculate business travel allowance based on destination tier and duration.
-     * Demonstrates an internal rule/finance calculation tool.
+     * Tool 2: Calculate business travel allowance based on destination city and duration.
+     * Demonstrates an internal rule/finance calculation tool with DDD rule encapsulation.
      */
-    @Tool(description = "计算员工国内差旅的每日出差伙食与公杂补贴总额。当用户咨询出差补贴标准、计算差旅补助金额时调用。")
+    @Tool(description = "根据出差目的地城市名称与出差天数，计算员工差旅伙食与公杂补贴总额。当用户咨询出差补贴标准、计算差旅补助金额时调用。")
     public TravelAllowanceResponse calculateTravelAllowance(
-            @ToolParam(description = "城市级别，如'一线城市'或'二线及其他'") String cityTier,
+            @ToolParam(description = "出差目的地城市名称，例如北京、上海、广州、深圳、杭州等") String cityName,
             @ToolParam(description = "出差天数") int days
     ) {
-        System.out.printf(">>> [Raw LLM Call] calculateTravelAllowance 收到大模型传递的原始实参: cityTier = [%s], days = [%d]%n", cityTier, days);
+        System.out.printf(">>> [Raw LLM Call] calculateTravelAllowance 收到大模型传递的原始实参: cityName = [%s], days = [%d]%n", cityName, days);
+
         int actualDays = Math.max(1, days);
-        boolean isTierOne = cityTier != null &&
-                (cityTier.contains("一线") || cityTier.contains("北上广深") ||
-                 cityTier.contains("北京") || cityTier.contains("上海") ||
-                 cityTier.contains("广州") || cityTier.contains("深圳"));
+        String city = cityName == null ? "未知城市" : cityName.trim();
+
+        // 确定性业务规则下沉到 Java：由系统判定几线城市，不让小模型猜
+        boolean isTierOne = city.contains("北京") || city.contains("上海") ||
+                            city.contains("广州") || city.contains("深圳");
 
         double dailyRate = isTierOne ? 150.0 : 100.0;
         double total = dailyRate * actualDays;
         String tierLabel = isTierOne ? "一线城市标准(150元/天)" : "二线及普通城市标准(100元/天)";
 
-        System.out.printf(">>> [Tool Execution] calculateTravelAllowance triggered: %s, days=%d, total=%.1f%n",
-                tierLabel, actualDays, total);
+        System.out.printf(">>> [Tool Execution] calculateTravelAllowance triggered: 目的地=%s, 判定级别=%s, 天数=%d天, 总补贴=%.1f元%n",
+                city, tierLabel, actualDays, total);
 
         return new TravelAllowanceResponse(
                 actualDays,
                 tierLabel,
                 dailyRate,
                 total,
-                "标准依据公司2026年出差管理条例：一线城市按150元/天包干，二线城市及其他按100元/天包干。"
+                "标准依据公司出差管理条例：一线城市(北上广深)按150元/天包干，二线城市及其他按100元/天包干。"
         );
     }
 }
