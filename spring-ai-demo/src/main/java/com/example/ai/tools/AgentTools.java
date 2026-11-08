@@ -27,6 +27,14 @@ public class AgentTools {
             String policyNote
     ) {}
 
+    public record EmployeeProfileResponse(
+            String employeeName,
+            String department,
+            String hometownCity,
+            String baseLocation,
+            String jobTitle
+    ) {}
+
     /**
      * Tool 1: Query weather information for a specific city.
      * In real enterprise scenarios, this calls a 3rd party REST API (e.g. QWeather / OpenWeather).
@@ -88,5 +96,31 @@ public class AgentTools {
                 total,
                 "标准依据公司出差管理条例：一线城市(北上广深)按150元/天包干，二线城市及其他按100元/天包干。"
         );
+    }
+
+    /**
+     * Tool 3: Query employee profile by name.
+     * Demonstrates an enterprise HRMS / directory lookup capability.
+     * Used in multi-hop ReAct chains (e.g. resolve employee's hometown before calculating travel allowance).
+     *
+     * @param employeeName Employee's name
+     * @return Employee profile including department, hometown, base location, and job title
+     */
+    @Tool(description = "根据员工姓名查询员工基本档案信息，包括所属部门、籍贯或老家城市、常驻办公地与职务。当需要获取员工籍贯、老家或所在部门时调用。")
+    public EmployeeProfileResponse queryEmployeeProfile(
+            @ToolParam(description = "员工姓名，例如张三、李四、王五") String employeeName
+    ) {
+        System.out.printf(">>> [Raw LLM Call] queryEmployeeProfile 收到大模型传递的原始实参: employeeName = [%s]%n", employeeName);
+        String name = employeeName == null ? "" : employeeName.trim();
+
+        if (name.contains("张三")) {
+            return new EmployeeProfileResponse("张三", "智能研发部", "深圳", "北京", "资深架构师");
+        } else if (name.contains("李四")) {
+            return new EmployeeProfileResponse("李四", "行政财务部", "成都", "上海", "财务主管");
+        } else if (name.contains("王五")) {
+            return new EmployeeProfileResponse("王五", "市场营销部", "武汉", "北京", "业务经理");
+        } else {
+            return new EmployeeProfileResponse(name, "综合部", "未知城市", "北京", "普通员工");
+        }
     }
 }
