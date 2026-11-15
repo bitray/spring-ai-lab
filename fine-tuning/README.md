@@ -45,7 +45,7 @@ fine-tuning/
 3. **关键配置（页面右侧 Notebook Settings 面板）**：
    - **Accelerator**：选择 **GPU T4**（或 GPU T4 x2）；
    - **Internet**：设置为 **Internet on**（确保可以联网拉取 Unsloth 和模型权重）；
-4. 上传数据：将本项目的 [train.json](file:///C:/workspace/ai_rag_test/fine-tuning/data/train.json) 上传至 Notebook 的当前工作目录；
+4. **上传数据**：在右侧面板点击 **Input -> + Add Input -> Upload（上传）**，选择本项目的 [train.json](file:///C:/workspace/ai_rag_test/fine-tuning/data/train.json) 创建一个数据集（例如起名 `enterprise-travel-train`）；Notebook 已内置自动扫描 `/kaggle/input/**/train.json`，无需手动改路径；
 5. 点击顶部菜单 **Run All（全部运行）**；
 6. 训练完成后，在右侧输出目录中找到导出的 `my_qwen_enterprise-q4_k_m.gguf`（约 1.8GB~2GB），下载回本地电脑。
 
