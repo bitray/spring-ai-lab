@@ -1,0 +1,16 @@
+# Ollama Modelfile for Custom Fine-Tuned Qwen2.5 Enterprise Specialist Model
+FROM ./my_qwen_enterprise-q4_k_m.gguf
+
+# Qwen2.5 Standard Chat Template
+TEMPLATE """{{ if .System }}<|im_start|>system
+{{ .System }}<|im_end|>
+{{ end }}{{ if .Prompt }}<|im_start|>user
+{{ .Prompt }}<|im_end|>
+<|im_start|>assistant
+{{ end }}"""
+
+# Parameter Configurations
+PARAMETER stop "<|im_start|>"
+PARAMETER stop "<|im_end|>"
+PARAMETER temperature 0.3
+PARAMETER top_p 0.8

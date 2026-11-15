@@ -28,6 +28,9 @@ public class AgentController {
     public AgentController(ChatClient.Builder builder, AgentTools agentTools, ChatMemory chatMemory) {
         this.agentTools = agentTools;
         this.chatMemory = chatMemory;
+        // 【对照实验】：注释掉详细的保姆级规则，仅保留一句话通用角色定义
+        // 测试未经微调的原始 3B 小模型，在失去显式链式推理规则引导时，是否会出现断链或错误
+        /*
         this.chatClient = builder
                 .defaultSystem("""
                         你是一个专业、严谨的企业行政与出行助手。
@@ -41,6 +44,14 @@ public class AgentController {
                         6. 如果用户只是进行日常问候或技术咨询，不需要调用任何工具，直接礼貌回答；
                         7. 结合历史会话记忆理解用户的追问（例如：用户追问'如果再多呆2天'，结合前文目的地和天数进行计算）。
                         """)
+                .defaultAdvisors(
+                        new SimpleLoggerAdvisor(),
+                        MessageChatMemoryAdvisor.builder(chatMemory).build()
+                )
+                .build();
+        */
+        this.chatClient = builder
+                .defaultSystem("你是一个专业、严谨的企业行政与出行助手。")
                 .defaultAdvisors(
                         new SimpleLoggerAdvisor(),
                         MessageChatMemoryAdvisor.builder(chatMemory).build()
