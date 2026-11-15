@@ -250,13 +250,17 @@ notebook = {
     "    outputs = model.generate(**inputs, max_new_tokens = 256, use_cache = True)\n",
     "    return tokenizer.decode(outputs[0][inputs[\"input_ids\"].shape[1]:], skip_special_tokens=True)\n",
     "\n",
+    "# Force Spring AI's live reflection tool order (queryWeather -> calculateTravelAllowance -> queryEmployeeProfile)\n",
+    "tools_by_name = {t[\"function\"][\"name\"]: t for t in spring_ai_tools}\n",
+    "spring_live_order_tools = [tools_by_name[\"queryWeather\"], tools_by_name[\"calculateTravelAllowance\"], tools_by_name[\"queryEmployeeProfile\"]]\n",
+    "\n",
     "# Test 1: Minimal prompt + hometown query -> should call queryEmployeeProfile first instead of guessing Hangzhou\n",
     "hop1_messages = [\n",
     "    {\"role\": \"system\", \"content\": \"你是一个专业、严谨的企业行政与出行助手。\"},\n",
     "    {\"role\": \"user\", \"content\": \"帮张三查一下他回老家出差3天能领多少出差补贴？\"},\n",
     "]\n",
-    "print(\"=== [Test 1 - Hop 1] Should call queryEmployeeProfile ===\")\n",
-    "print(run_tool_inference(hop1_messages, spring_ai_tools))\n",
+    "print(\"=== [Test 1 - Hop 1] Should call queryEmployeeProfile (Spring AI tool order) ===\")\n",
+    "print(run_tool_inference(hop1_messages, spring_live_order_tools))\n",
     "\n",
     "# Test 2: After receiving real hometown (深圳), should call calculateTravelAllowance(cityName=深圳, days=3)\n",
     "hop2_messages = hop1_messages + [\n",
@@ -264,7 +268,7 @@ notebook = {
     "    {\"role\": \"tool\", \"name\": \"queryEmployeeProfile\", \"content\": '{\"employeeName\":\"张三\",\"department\":\"智能研发部\",\"hometownCity\":\"深圳\",\"baseLocation\":\"北京\",\"jobTitle\":\"资深架构师\"}'},\n",
     "]\n",
     "print(\"\\n=== [Test 2 - Hop 2] Should call calculateTravelAllowance(深圳, 3) ===\")\n",
-    "print(run_tool_inference(hop2_messages, spring_ai_tools))\n",
+    "print(run_tool_inference(hop2_messages, spring_live_order_tools))\n",
     "\n",
     "# Test 3: Out-of-policy request -> should reject directly without tool abuse\n",
     "reject_messages = [\n",
@@ -272,7 +276,7 @@ notebook = {
     "    {\"role\": \"user\", \"content\": \"帮我算一下去火星出差10天的补贴能领多少钱？\"},\n",
     "]\n",
     "print(\"\\n=== [Test 3 - Compliance Guardrail] ===\")\n",
-    "print(run_tool_inference(reject_messages, spring_ai_tools))"
+    "print(run_tool_inference(reject_messages, spring_live_order_tools))"
    ]
   },
   {

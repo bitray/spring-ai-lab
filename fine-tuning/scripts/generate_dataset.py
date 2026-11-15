@@ -13,6 +13,7 @@ Covers 5 capabilities without relying on verbose system-prompt rules:
 5. Compliance rejection for non-business / non-terrestrial travel requests
 """
 
+import copy
 import json
 import random
 from pathlib import Path
@@ -116,6 +117,24 @@ WEATHER_BY_CITY = {
 }
 
 
+def build_sample_tools() -> list[dict]:
+    """
+    Return a shuffled copy of SPRING_AI_TOOLS so the model learns semantic tool
+    selection instead of overfitting to a fixed tool position. Half of the samples
+    also include Spring AI's exact Jackson JSON Schema metadata ($schema, etc.).
+    """
+    tools = copy.deepcopy(SPRING_AI_TOOLS)
+    if random.random() < 0.5:
+        for tool in tools:
+            params = tool["function"]["parameters"]
+            params["$schema"] = "https://json-schema.org/draft/2020-12/schema"
+            params["additionalProperties"] = False
+            if "days" in params.get("properties", {}):
+                params["properties"]["days"]["format"] = "int32"
+    random.shuffle(tools)
+    return tools
+
+
 def build_assistant_tool_call(tool_name: str, arguments: dict) -> dict:
     """Create an assistant message requesting a single tool invocation."""
     return {
@@ -213,7 +232,7 @@ def generate_hometown_multihop_samples(count: int = 120) -> list[dict]:
         )
 
         samples.append({
-            "tools": SPRING_AI_TOOLS,
+            "tools": build_sample_tools(),
             "messages": [
                 {"role": "system", "content": random.choice(SYSTEM_PROMPTS)},
                 {"role": "user", "content": random.choice(prompts).format(name=name, days=days)},
@@ -283,7 +302,7 @@ def generate_direct_and_combined_samples(count: int = 70) -> list[dict]:
                 {"role": "assistant", "content": final_answer},
             ]
 
-        samples.append({"tools": SPRING_AI_TOOLS, "messages": messages})
+        samples.append({"tools": build_sample_tools(), "messages": messages})
     return samples
 
 
@@ -326,7 +345,7 @@ def generate_incremental_days_samples(count: int = 40) -> list[dict]:
                 ),
             },
         ]
-        samples.append({"tools": SPRING_AI_TOOLS, "messages": messages})
+        samples.append({"tools": build_sample_tools(), "messages": messages})
     return samples
 
 
@@ -364,7 +383,7 @@ def generate_tool_failure_guardrail_samples(count: int = 35) -> list[dict]:
                     "content": "抱歉，拉萨第三方气象数据服务当前连接超时（HTTP 504），暂时无法获取实时天气与穿衣建议，请稍后再试或查阅官方气象预报。",
                 },
             ]
-        samples.append({"tools": SPRING_AI_TOOLS, "messages": messages})
+        samples.append({"tools": build_sample_tools(), "messages": messages})
     return samples
 
 
@@ -389,7 +408,7 @@ def generate_compliance_rejection_samples(count: int = 35) -> list[dict]:
     for index in range(count):
         user_q, rejection = scenarios[index % len(scenarios)]
         samples.append({
-            "tools": SPRING_AI_TOOLS,
+            "tools": build_sample_tools(),
             "messages": [
                 {"role": "system", "content": random.choice(SYSTEM_PROMPTS)},
                 {"role": "user", "content": user_q},

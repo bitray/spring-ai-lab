@@ -30,3 +30,6 @@ out/
 # OS generated files
 .DS_Store
 Thumbs.db
+
+# Large model weights
+*.gguf
