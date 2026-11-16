@@ -5,7 +5,12 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.ai.tool.ToolCallback;
+import org.springframework.ai.tool.method.MethodToolCallbackProvider;
 import org.springframework.web.bind.annotation.GetMapping;
+
+import java.util.Arrays;
+import java.util.Comparator;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,11 +27,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class AgentController {
 
     private final ChatClient chatClient;
-    private final AgentTools agentTools;
+    private final ToolCallback[] sortedToolCallbacks;
     private final ChatMemory chatMemory;
 
     public AgentController(ChatClient.Builder builder, AgentTools agentTools, ChatMemory chatMemory) {
-        this.agentTools = agentTools;
+        this.sortedToolCallbacks = buildSortedToolCallbacks(agentTools);
         this.chatMemory = chatMemory;
         // 【对照实验】：注释掉详细的保姆级规则，仅保留一句话通用角色定义
         // 测试未经微调的原始 3B 小模型，在失去显式链式推理规则引导时，是否会出现断链或错误
@@ -83,7 +88,7 @@ public class AgentController {
         String response = chatClient.prompt()
                 .user(prompt)
                 .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, conversationId))
-                .tools(agentTools)
+                .toolCallbacks(sortedToolCallbacks)
                 .call()
                 .content();
 
@@ -100,5 +105,19 @@ public class AgentController {
         chatMemory.clear(conversationId);
         System.out.println(">>> [ChatMemory] Cleared session: " + conversationId);
         return "Session [" + conversationId + "] memory cleared successfully.";
+    }
+
+    /**
+     * Sort @Tool callbacks deterministically by tool name so JVM reflection order
+     * (Class.getDeclaredMethods) never shifts the tool list sent to the LLM.
+     */
+    private static ToolCallback[] buildSortedToolCallbacks(AgentTools agentTools) {
+        ToolCallback[] callbacks = MethodToolCallbackProvider.builder()
+                .toolObjects(agentTools)
+                .build()
+                .getToolCallbacks();
+        return Arrays.stream(callbacks)
+                .sorted(Comparator.comparing(cb -> cb.getToolDefinition().name()))
+                .toArray(ToolCallback[]::new);
     }
 }

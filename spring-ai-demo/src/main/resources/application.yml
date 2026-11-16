@@ -8,8 +8,8 @@ spring:
       base-url: http://localhost:11434
       chat:
         options:
-          # 对话使用的模型（确保你本地已 ollama pull 过）
-          model: qwen2.5:3b
+          # 对话使用的模型（已切换为微调并导入本地 Ollama 的专属企业模型）
+          model: my-qwen-enterprise
           # Temperature: 越低越确定（结构化输出建议 0.1-0.3），越高越有创造性
           temperature: 0.7
       embedding:
